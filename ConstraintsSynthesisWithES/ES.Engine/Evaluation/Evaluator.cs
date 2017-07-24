@@ -13,24 +13,24 @@ namespace ES.Engine.Evaluation
             NumberOfConstraints = experimentParameters.NumberOfConstraints;
             NumberOfConstraintCoefficients = experimentParameters.NumberOfDimensions + 1;
         }
-        public Evaluator(ExperimentParameters experimentParameters, Point[] positiveMeasurePoints)
+        public Evaluator(ExperimentParameters experimentParameters, Point[] positivePoints)
         {
             ExperimentParameters = experimentParameters;
-            PositiveMeasurePoints = positiveMeasurePoints;
+            PositivePoints = positivePoints;
             NumberOfConstraints = experimentParameters.NumberOfConstraints;
             NumberOfConstraintCoefficients = experimentParameters.NumberOfDimensions + 1;
         }
-        public Evaluator(ExperimentParameters experimentParameters, Point[] positiveMeasurePoints, Point[] negativeMeasurePoints)
+        public Evaluator(ExperimentParameters experimentParameters, Point[] positivePoints, Point[] negativePoints)
         {
             ExperimentParameters = experimentParameters;
-            PositiveMeasurePoints = positiveMeasurePoints;
-            NegativeMeasurePoints = negativeMeasurePoints;
+            PositivePoints = positivePoints;
+            NegativePoints = negativePoints;
             NumberOfConstraints = experimentParameters.NumberOfConstraints;
             NumberOfConstraintCoefficients = experimentParameters.NumberOfDimensions + 1;
         }
 
-        public Point[] PositiveMeasurePoints { get; set; }
-        public Point[] NegativeMeasurePoints { get; set; }
+        public Point[] PositivePoints { get; set; }
+        public Point[] NegativePoints { get; set; }
 
         //Experiment parameters
         public int NumberOfConstraints { get; set; }
@@ -40,11 +40,11 @@ namespace ES.Engine.Evaluation
         //public double Evaluate2(Solution solution)
         //{
         //    var constraints = solution.GetConstraints(ExperimentParameters);
-        //    var numberOfPositivePointsSatisfyingConstraints = PositiveMeasurePoints.Count(point => IsSatisfyingConstraints(constraints, point));
-        //    var numberOfNegativePointsSatisfyingConstraints = NegativeMeasurePoints.Count(point => IsSatisfyingConstraints(constraints, point));
+        //    var numberOfPositivePointsSatisfyingConstraints = PositivePoints.Count(point => IsSatisfyingConstraints(constraints, point));
+        //    var numberOfNegativePointsSatisfyingConstraints = NegativePoints.Count(point => IsSatisfyingConstraints(constraints, point));
 
-        //    return (double)numberOfPositivePointsSatisfyingConstraints / (PositiveMeasurePoints.Length + numberOfNegativePointsSatisfyingConstraints);
-        //    //return (double)numberOfPositivePointsSatisfyingConstraints / (PositiveMeasurePoints.Length + NegativeMeasurePoints.Length);
+        //    return (double)numberOfPositivePointsSatisfyingConstraints / (PositivePoints.Length + numberOfNegativePointsSatisfyingConstraints);
+        //    //return (double)numberOfPositivePointsSatisfyingConstraints / (PositivePoints.Length + NegativePoints.Length);
         //    //return (double)numberOfPositivePointsSatisfyingConstraints;
         //}
 
@@ -54,15 +54,15 @@ namespace ES.Engine.Evaluation
             var numberOfNegativePointsSatisfyingConstraints = 0;
             var constraints = solution.GetConstraints(ExperimentParameters);
 
-            for (var i = 0; i < PositiveMeasurePoints.Length; i++)
+            for (var i = 0; i < PositivePoints.Length; i++)
             {
-                if (IsSatisfyingConstraints(constraints, PositiveMeasurePoints[i]))
+                if (IsSatisfyingConstraints(constraints, PositivePoints[i]))
                     numberOfPositivePointsSatisfyingConstraints++;
             }
 
-            for (var i = 0; i < NegativeMeasurePoints.Length; i++)
+            for (var i = 0; i < NegativePoints.Length; i++)
             {
-                if (IsSatisfyingConstraints(constraints, NegativeMeasurePoints[i]))
+                if (IsSatisfyingConstraints(constraints, NegativePoints[i]))
                     numberOfNegativePointsSatisfyingConstraints++;
             }
 
@@ -71,7 +71,7 @@ namespace ES.Engine.Evaluation
             //    Debugger.Break();
             //}
 
-            return (double)numberOfPositivePointsSatisfyingConstraints / (PositiveMeasurePoints.Length + numberOfNegativePointsSatisfyingConstraints);
+            return (double)numberOfPositivePointsSatisfyingConstraints / (PositivePoints.Length + numberOfNegativePointsSatisfyingConstraints);
         }
 
         //private bool IsSatisfyingConstraints2(Solution solution, Point point)
@@ -103,24 +103,24 @@ namespace ES.Engine.Evaluation
         //    //var numberOfConstraints = Arguments.Get<int>("NumberOfRestrictions");
         //    //var numberOfConstraintCoefficients = solution.ObjectCoefficients.Length / numberOfConstraints;
 
-        //    for (var i = 0; i < PositiveMeasurePoints.Length; i++)
+        //    for (var i = 0; i < PositivePoints.Length; i++)
         //    {
-        //        if (IsSatisfyingConstraints(solution, PositiveMeasurePoints[i]))
+        //        if (IsSatisfyingConstraints(solution, PositivePoints[i]))
         //        {
         //            numberOfPositivePointsSatisfyingConstraints++;
         //        }
         //    }
 
-        //    for (var i = 0; i < NegativeMeasurePoints.Length; i++)
+        //    for (var i = 0; i < NegativePoints.Length; i++)
         //    {
-        //        if (IsSatisfyingConstraints(solution, NegativeMeasurePoints[i]))
+        //        if (IsSatisfyingConstraints(solution, NegativePoints[i]))
         //        {
         //            numberOfNegativePointsSatisfyingConstraints++;
         //        }
         //    }
 
-        //    return (double)numberOfPositivePointsSatisfyingConstraints / (PositiveMeasurePoints.Length + numberOfNegativePointsSatisfyingConstraints);
-        //    //return (double)numberOfPositivePointsSatisfyingConstraints / (PositiveMeasurePoints.Length + NegativeMeasurePoints.Length);
+        //    return (double)numberOfPositivePointsSatisfyingConstraints / (PositivePoints.Length + numberOfNegativePointsSatisfyingConstraints);
+        //    //return (double)numberOfPositivePointsSatisfyingConstraints / (PositivePoints.Length + NegativePoints.Length);
         //    //return (double)numberOfPositivePointsSatisfyingConstraints;
         //}
 

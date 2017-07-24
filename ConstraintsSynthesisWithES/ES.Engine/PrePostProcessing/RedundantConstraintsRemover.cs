@@ -17,22 +17,30 @@ namespace ES.Engine.PrePostProcessing
         {
             _domainSpaceSampler = pointsGenerator;
             _benchmark = benchmark;
-
+            
             var numberOfDimensions = benchmark.Domains.Length;
             var domains = benchmark.Domains;
-            var spaceSize = 1.0;
+            var domainSamplingStep = experimentParameters.DomainSamplingStep;
+            var temp = 1.0;
 
             for (var i = 0; i < numberOfDimensions; i++)
             {
-                spaceSize *= domains[i].UpperLimit - domains[i].LowerLimit;
+                temp *= (domains[i].UpperLimit - domains[i].LowerLimit) / domainSamplingStep;
             }
 
-            _numberOfPointsToGenerate = (int)(experimentParameters.DomainCoveragePercentage * spaceSize);
+            _numberOfPointsToGenerate = (int) temp;
+
+            //var spaceSize = 1.0;
+
+
+
+            //_numberOfPointsToGenerate = (int)(experimentParameters.DomainSamplingStep * spaceSize);
         }
 
         public Constraint[] ApplyProcessing(Constraint[] constraints)
         {          
-            var points = _domainSpaceSampler.GeneratePoints(_numberOfPointsToGenerate, _benchmark);           
+            var points = _domainSpaceSampler.GeneratePoints(_numberOfPointsToGenerate, _benchmark);
+            Points = points;         
 
             var numberOfPoints = points.Length;
             var allConstraints = constraints.ToList();
@@ -65,6 +73,8 @@ namespace ES.Engine.PrePostProcessing
             }
 
             return reducedConstraints.ToArray();
-        }       
+        }
+
+        public Point[] Points { get; set; }    
     }
 }

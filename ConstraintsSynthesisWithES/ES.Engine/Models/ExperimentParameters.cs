@@ -22,7 +22,7 @@ namespace ES.Engine.Models
 
                 Seed = Arguments.HasKey(nameof(Defaults.Seed)) ? Arguments.Get<int>(nameof(Defaults.Seed)) : Defaults.Seed;
 
-                DomainCoveragePercentage = Arguments.HasKey(nameof(Defaults.DomainCoveragePercentage)) ? Arguments.Get<double>(nameof(Defaults.DomainCoveragePercentage)) : Defaults.DomainCoveragePercentage;
+                DomainSamplingStep = Arguments.HasKey(nameof(Defaults.DomainSamplingStep)) ? Arguments.Get<double>(nameof(Defaults.DomainSamplingStep)) : Defaults.DomainSamplingStep;
 
                 BallnBoundaryValue = Arguments.HasKey(nameof(Defaults.BallnBoundaryValue)) ? Arguments.Get<int>(nameof(Defaults.BallnBoundaryValue)) : Defaults.BallnBoundaryValue;
                 CubenBoundaryValue = Arguments.HasKey(nameof(Defaults.CubenBoundaryValue)) ? Arguments.Get<int>(nameof(Defaults.CubenBoundaryValue)) : Defaults.CubenBoundaryValue;
@@ -78,7 +78,7 @@ namespace ES.Engine.Models
 
             int seed = Defaults.Seed,
 
-            double domainCoveragePercentage = Defaults.DomainCoveragePercentage,
+            double domainSamplingStep = Defaults.DomainSamplingStep,
 
             double ballnBoundaryValue = Defaults.BallnBoundaryValue,
             double cubenBoundaryValue = Defaults.CubenBoundaryValue,
@@ -119,7 +119,7 @@ namespace ES.Engine.Models
 
             NumberOfConstraints = numberOfConstraints;
 
-            DomainCoveragePercentage = domainCoveragePercentage;
+            DomainSamplingStep = domainSamplingStep;
 
             Seed = seed;
 
@@ -199,7 +199,7 @@ namespace ES.Engine.Models
         public int NumberOfConstraints { get; set; }
 
         //Sampling
-        public double DomainCoveragePercentage { get; set; }
+        public double DomainSamplingStep { get; set; }
 
         //Mutation
         public double GlobalLearningRate { get; set; }

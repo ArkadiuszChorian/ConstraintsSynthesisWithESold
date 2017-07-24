@@ -43,11 +43,12 @@ namespace ES.ExperimentsApp
                 //individualLearningRate: 0.8,
                 numberOfPositiveMeasurePoints: 1000,
                 numberOfNegativeMeasurePoints: 1000,
-                //ballnBoundaryValue: 2,
+                ballnBoundaryValue: 2,
+                //simplexnBoundaryValue: 2,
                 seed: 1,
                 useRecombination: false,
-                numberOfParentsSolutionsToSelect: 5,
-                domainCoveragePercentage: 0.5
+                numberOfParentsSolutionsToSelect: 5
+                //domainSamplingStep: 0.8
                 );
 
             var experimentParameters4 = new ExperimentParameters(2, 10,
@@ -150,24 +151,24 @@ namespace ES.ExperimentsApp
 
             visualization
                 .AddNextPlot()
-                .AddPoints(evaluator.PositiveMeasurePoints, OxyColors.Green)
-                .AddPoints(evaluator.NegativeMeasurePoints, OxyColors.Red)
+                .AddPoints(evaluator.PositivePoints, OxyColors.Green)
+                .AddPoints(evaluator.NegativePoints, OxyColors.Red)
                 .AddConstraints(engine.Benchmark.Constraints, OxyPalettes.Rainbow, xMin: engine.Benchmark.Domains[0].LowerLimit, xMax: engine.Benchmark.Domains[0].UpperLimit)
                 .AddNextPlot()
-                .AddPoints(evaluator.PositiveMeasurePoints, OxyColors.Green)
-                .AddPoints(evaluator.NegativeMeasurePoints, OxyColors.Red)
+                .AddPoints(evaluator.PositivePoints, OxyColors.Green)
+                .AddPoints(evaluator.NegativePoints, OxyColors.Red)
                 .AddConstraints(bestSolutionConstraints, OxyPalettes.Rainbow)
                 //.AddNextPlot()
                 //.AddPoints(remover.Points, OxyColors.Orange)
                 //.AddConstraints(testConstraints, OxyPalettes.Rainbow)
                 .AddNextPlot()
                 //.AddPoints(remover.Points, OxyColors.Orange)
-                .AddPoints(evaluator.PositiveMeasurePoints, OxyColors.Green)
-                .AddPoints(evaluator.NegativeMeasurePoints, OxyColors.Red)
+                .AddPoints(evaluator.PositivePoints, OxyColors.Green)
+                .AddPoints(evaluator.NegativePoints, OxyColors.Red)
                 .AddConstraints(postConstraints, OxyPalettes.Rainbow, xMin: engine.Benchmark.Domains[0].LowerLimit, xMax: engine.Benchmark.Domains[0].UpperLimit)
                 //.AddNextPlot()
-                //.AddPoints(evaluator.PositiveMeasurePoints, OxyColors.Green)
-                //.AddPoints(evaluator.NegativeMeasurePoints, OxyColors.Red)
+                //.AddPoints(evaluator.PositivePoints, OxyColors.Green)
+                //.AddPoints(evaluator.NegativePoints, OxyColors.Red)
                 //.AddConstraints(engine.InitialPopulation.First().GetConstraints(experimentParameters), OxyPalettes.Rainbow)
                 .Show();
 
@@ -177,7 +178,7 @@ namespace ES.ExperimentsApp
             //{
             //    visualization
             //        .AddNextPlot(title: "Step " + i)
-            //        .AddPoints(evaluator.PositiveMeasurePoints, OxyColors.Green)
+            //        .AddPoints(evaluator.PositivePoints, OxyColors.Green)
             //        .AddConstraints(engine2.OneSolutionHistory[i].GetConstraints(experimentParameters), OxyPalettes.Rainbow);
             //}
 

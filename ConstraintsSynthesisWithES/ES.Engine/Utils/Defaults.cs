@@ -19,7 +19,7 @@ namespace ES.Engine.Utils
 
         public const int Seed = 1;
 
-        public const double DomainCoveragePercentage = 0.8;
+        public const double DomainSamplingStep = 0.1;
 
         public const double BallnBoundaryValue = 100;
         public const double CubenBoundaryValue = 100;
