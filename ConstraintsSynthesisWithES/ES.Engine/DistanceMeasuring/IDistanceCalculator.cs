@@ -2,6 +2,6 @@
 {
     public interface IDistanceCalculator
     {
-        double CalculateDistance(double[] vector1, double[] vector2);
+        double Calculate(double[] vector1, double[] vector2);
     }
 }

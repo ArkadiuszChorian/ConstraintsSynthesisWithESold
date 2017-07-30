@@ -1,5 +1,4 @@
 ﻿using ES.Engine.Models;
-using ES.Engine.Solutions;
 using ES.Engine.Utils;
 
 namespace ES.Engine.PopulationGeneration

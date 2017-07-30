@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using ES.Engine.Constraints;
 using ES.Engine.Models;
-using ES.Engine.Solutions;
 
 namespace ES.Engine.Utils
 {
@@ -26,6 +26,19 @@ namespace ES.Engine.Utils
             }
 
             return constraints;
+        }
+
+        public static bool IsSatisfyingConstraints(this IList<Constraint> constraints, Point point)
+        {
+            var length = constraints.Count;
+
+            for (var i = 0; i < length; i++)
+            {
+                if (!constraints[i].IsSatisfyingConstraint(point))
+                    return false;
+            }
+
+            return true;
         }
     }
 }

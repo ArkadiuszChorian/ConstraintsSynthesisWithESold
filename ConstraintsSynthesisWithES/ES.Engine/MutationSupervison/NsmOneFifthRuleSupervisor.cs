@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using ES.Engine.Models;
-using ES.Engine.Solutions;
 
 namespace ES.Engine.MutationSupervison
 {

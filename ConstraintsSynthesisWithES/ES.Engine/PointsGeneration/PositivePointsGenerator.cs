@@ -1,4 +1,5 @@
 ﻿using ES.Engine.Benchmarks;
+using ES.Engine.DistanceMeasuring;
 using ES.Engine.Models;
 using ES.Engine.Utils;
 
@@ -24,7 +25,7 @@ namespace ES.Engine.PointsGeneration
 
             for (var i = 0; i < numberOfPointsToGenerate; i++)
             {
-                points[i] = new Point(numberOfDimensions);
+                points[i] = new Point(numberOfDimensions, ClassificationType.Positive);
                 var currentPoint = points[i];
                 var isSatsfyngConstraints = false;
 

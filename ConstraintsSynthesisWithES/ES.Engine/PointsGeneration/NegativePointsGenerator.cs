@@ -9,42 +9,42 @@ namespace ES.Engine.PointsGeneration
     {
         private readonly MersenneTwister _randomGenerator;
         private readonly Point[] _positiveMeasurePoints;
-        private readonly IDistanceCalculator _distanceCalculator;
+        private readonly IDistanceCalculator _distanceCalculator;      
 
-        public NegativePointsGenerator(Point[] positiveMeasurePoints, IDistanceCalculator distanceCalculator)
+        public NegativePointsGenerator(Point[] positiveMeasurePoints, IDistanceCalculator distanceCalculator, INearestNeighbourDistanceCalculator nearestNeighbourDistanceCalculator)
         {
             _randomGenerator = MersenneTwister.Instance;
             _positiveMeasurePoints = positiveMeasurePoints;
             _distanceCalculator = distanceCalculator;
 
-            CalculateNearestNeighbourDistances();
+            nearestNeighbourDistanceCalculator.CalculateNearestNeighbourDistances(positiveMeasurePoints);
         }
 
-        public void CalculateNearestNeighbourDistances()
-        {
-            var numberOfPositiveMeasurePoints = _positiveMeasurePoints.Length;
+        //public void CalculateNearestNeighbourDistances()
+        //{
+        //    var numberOfPositiveMeasurePoints = _positiveMeasurePoints.Length;
 
-            for (var i = 0; i < numberOfPositiveMeasurePoints; i++)
-            {
-                _positiveMeasurePoints[i].DistanceToNearestNeighbour = int.MaxValue;
+        //    for (var i = 0; i < numberOfPositiveMeasurePoints; i++)
+        //    {
+        //        _positiveMeasurePoints[i].DistanceToNearestNeighbour = int.MaxValue;
 
-                for (var j = 0; j < numberOfPositiveMeasurePoints; j++)
-                {
-                    if (i == j)
-                    {
-                        continue;
-                    }
+        //        for (var j = 0; j < numberOfPositiveMeasurePoints; j++)
+        //        {
+        //            if (i == j)
+        //            {
+        //                continue;
+        //            }
 
-                    var distanceBetweenPoints = _distanceCalculator.CalculateDistance(_positiveMeasurePoints[i].Coordinates,
-                        _positiveMeasurePoints[j].Coordinates);
+        //            var distanceBetweenPoints = _distanceCalculator.Calculate(_positiveMeasurePoints[i].Coordinates,
+        //                _positiveMeasurePoints[j].Coordinates);
 
-                    if (distanceBetweenPoints < _positiveMeasurePoints[i].DistanceToNearestNeighbour)
-                    {
-                        _positiveMeasurePoints[i].DistanceToNearestNeighbour = distanceBetweenPoints;
-                    }
-                }
-            }
-        }
+        //            if (distanceBetweenPoints < _positiveMeasurePoints[i].DistanceToNearestNeighbour)
+        //            {
+        //                _positiveMeasurePoints[i].DistanceToNearestNeighbour = distanceBetweenPoints;
+        //            }
+        //        }
+        //    }
+        //}
 
         public Point[] GeneratePoints(int numberOfPointsToGenerate, IBenchmark benchmark)
         {
@@ -53,7 +53,7 @@ namespace ES.Engine.PointsGeneration
 
             for (var i = 0; i < numberOfPointsToGenerate; i++)
             {
-                points[i] = new Point(numberOfDimensions);
+                points[i] = new Point(numberOfDimensions, ClassificationType.Negative);
                 var currentPoint = points[i];
                 var isSatisfyingNearestNeighbourConstraints = false;
 
@@ -81,7 +81,7 @@ namespace ES.Engine.PointsGeneration
 
         private bool IsOutsideNeighbourhood(Point pointToCheck, Point centerPoint)
         {
-            return _distanceCalculator.CalculateDistance(pointToCheck.Coordinates, centerPoint.Coordinates) >
+            return _distanceCalculator.Calculate(pointToCheck.Coordinates, centerPoint.Coordinates) >
                    centerPoint.DistanceToNearestNeighbour;
         }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using ES.Engine.Constraints;
+using ES.Engine.DistanceMeasuring;
 using ES.Engine.Engine;
 using ES.Engine.Evaluation;
 using ES.Engine.Models;
@@ -16,22 +17,15 @@ namespace ES.ExperimentsApp
 {
     class Program
     {
-        private const bool DbTest = true;
-
         static void Main(string[] args)
         {
-            if (DbTest)
-            {
-                //TestDb();
-                //return;
-            }
 
             var stoper = new Stopwatch();
             stoper.Start();
 
-            var experimentParameters = new ExperimentParameters(2, 10,
+            var experimentParameters = new ExperimentParameters(6, 10,
                 typeOfMutation: ExperimentParameters.MutationType.Correlated,
-                typeOfBenchmark: ExperimentParameters.BenchmarkType.Balln,
+                typeOfBenchmark: ExperimentParameters.BenchmarkType.Cuben,
                 stepThreshold: 0.1, numberOfGenerations: 100,
                 basePopulationSize: 15,
                 //basePopulationSize: 3,
@@ -41,14 +35,14 @@ namespace ES.ExperimentsApp
                 //globalLerningRate: 0.7,
                 individualLearningRate: 1 / Math.Sqrt(2 * Math.Sqrt(2)),
                 //individualLearningRate: 0.8,
-                numberOfPositiveMeasurePoints: 1000,
-                numberOfNegativeMeasurePoints: 1000,
+                numberOfPositivePoints: 1000,
+                numberOfNegativePoints: 1000,
                 ballnBoundaryValue: 2,
                 //simplexnBoundaryValue: 2,
                 seed: 1,
                 useRecombination: false,
-                numberOfParentsSolutionsToSelect: 5
-                //domainSamplingStep: 0.8
+                numberOfParentsSolutionsToSelect: 5,
+                domainSamplingStep: 1
                 );
 
             var experimentParameters4 = new ExperimentParameters(2, 10,
@@ -63,8 +57,8 @@ namespace ES.ExperimentsApp
                 //globalLerningRate: 0.7,
                 individualLearningRate: 1 / Math.Sqrt(2 * Math.Sqrt(2)),
                 //individualLearningRate: 0.8,
-                numberOfPositiveMeasurePoints: 300,
-                numberOfNegativeMeasurePoints: 300,
+                numberOfPositivePoints: 300,
+                numberOfNegativePoints: 300,
                 ballnBoundaryValue: 10
                 );
 
@@ -79,8 +73,8 @@ namespace ES.ExperimentsApp
                 //globalLerningRate: 0.7,
                 individualLearningRate: 1 / Math.Sqrt(2 * Math.Sqrt(2)),
                 //individualLearningRate: 0.8,
-                numberOfPositiveMeasurePoints: 300,
-                numberOfNegativeMeasurePoints: 300
+                numberOfPositivePoints: 300,
+                numberOfNegativePoints: 300
                 );           
 
             var experimentParameters2 = new ExperimentParameters(2, 10,
@@ -93,18 +87,18 @@ namespace ES.ExperimentsApp
                 globalLerningRate: 1 / Math.Sqrt(2 * 2),
                 //globalLerningRate: 0.7,
                 individualLearningRate: 1 / Math.Sqrt(2 * Math.Sqrt(2)),
-                numberOfPositiveMeasurePoints: 100,
-                numberOfNegativeMeasurePoints: 100
+                numberOfPositivePoints: 100,
+                numberOfNegativePoints: 100
                 );
 
             var visualization = new Visualization();
 
             var constraints = new List<Constraint>
             {
-                new Linear2DConstraint(1, 60, Linear2DConstraint.InequalityValues.UnderLine),
-                new Linear2DConstraint(1, 0, Linear2DConstraint.InequalityValues.OverLine),
-                new Linear2DConstraint(-2, 60, Linear2DConstraint.InequalityValues.UnderLine),
-                new Linear2DConstraint(-2, 0, Linear2DConstraint.InequalityValues.OverLine)
+                new Linear2DConstraint(1, 60, Linear2DConstraint.InequalityValue.UnderLine),
+                new Linear2DConstraint(1, 0, Linear2DConstraint.InequalityValue.OverLine),
+                new Linear2DConstraint(-2, 60, Linear2DConstraint.InequalityValue.UnderLine),
+                new Linear2DConstraint(-2, 0, Linear2DConstraint.InequalityValue.OverLine)
             };
 
             var constraints2 = new List<Constraint>
@@ -127,62 +121,75 @@ namespace ES.ExperimentsApp
             };
 
             experimentParameters.ConstraintsToPointsGeneration = constraints;
-            
+
             var engine = EngineFactory.GetEngine(experimentParameters);
-            engine.RunExperiment();
 
-            var bestSolutionConstraints = engine.BasePopulation.First().GetConstraints(experimentParameters);
+            var distanceCalculator = new CanberraDistanceCalculator();
 
-            var evaluator = (Evaluator)engine.Evaluator;
+            var positivePointsGenerator = new PositivePointsGenerator();
+            var positiveTrainingPoints = positivePointsGenerator.GeneratePoints(experimentParameters.NumberOfPositivePoints, engine.Benchmark);
 
-            var remover = new RedundantConstraintsRemover(new DomainSpaceSampler(), engine.Benchmark, experimentParameters);
+            var negativePointsGenerator = new NegativePointsGenerator(positiveTrainingPoints, distanceCalculator, new NearestNeighbourDistanceCalculator(distanceCalculator));
+            var negativeTrainingPoints = negativePointsGenerator.GeneratePoints(experimentParameters.NumberOfNegativePoints, engine.Benchmark);
+
+            var trainingPoints = positiveTrainingPoints.Concat(negativeTrainingPoints).ToArray();
+
+            engine.SynthesizeModel(trainingPoints);
+
+            //var bestSolutionConstraints = engine.BasePopulation.First().GetConstraints(experimentParameters);
+            var synthesizedModel = engine.GetSynthesizedModel();
+
+            //var evaluator = (Evaluator)engine.Evaluator;
+
+            //var remover = new RedundantConstraintsRemover(new DomainSpaceSampler(), engine.Benchmark, experimentParameters);
             
             var testConstraints = new[]
             {
-                new Linear2DConstraint(1, 20, Linear2DConstraint.InequalityValues.UnderLine),
-                new Linear2DConstraint(1, -20, Linear2DConstraint.InequalityValues.OverLine),
-                new Linear2DConstraint(-1, 20, Linear2DConstraint.InequalityValues.UnderLine),
-                new Linear2DConstraint(-1, -20, Linear2DConstraint.InequalityValues.OverLine),
-                new Linear2DConstraint(1, 80, Linear2DConstraint.InequalityValues.UnderLine),
-                new Linear2DConstraint(1, 70, Linear2DConstraint.InequalityValues.UnderLine),
+                new Linear2DConstraint(1, 20, Linear2DConstraint.InequalityValue.UnderLine),
+                new Linear2DConstraint(1, -20, Linear2DConstraint.InequalityValue.OverLine),
+                new Linear2DConstraint(-1, 20, Linear2DConstraint.InequalityValue.UnderLine),
+                new Linear2DConstraint(-1, -20, Linear2DConstraint.InequalityValue.OverLine),
+                new Linear2DConstraint(1, 80, Linear2DConstraint.InequalityValue.UnderLine),
+                new Linear2DConstraint(1, 70, Linear2DConstraint.InequalityValue.UnderLine),
             };
 
-            var postConstraints = remover.ApplyProcessing(bestSolutionConstraints);
+            //var postConstraints = remover.ApplyProcessing(bestSolutionConstraints);
+            //var postConstraints = remover.ApplyProcessing(bestSolutionConstraints.ToArray());
 
-            visualization
-                .AddNextPlot()
-                .AddPoints(evaluator.PositivePoints, OxyColors.Green)
-                .AddPoints(evaluator.NegativePoints, OxyColors.Red)
-                .AddConstraints(engine.Benchmark.Constraints, OxyPalettes.Rainbow, xMin: engine.Benchmark.Domains[0].LowerLimit, xMax: engine.Benchmark.Domains[0].UpperLimit)
-                .AddNextPlot()
-                .AddPoints(evaluator.PositivePoints, OxyColors.Green)
-                .AddPoints(evaluator.NegativePoints, OxyColors.Red)
-                .AddConstraints(bestSolutionConstraints, OxyPalettes.Rainbow)
-                //.AddNextPlot()
-                //.AddPoints(remover.Points, OxyColors.Orange)
-                //.AddConstraints(testConstraints, OxyPalettes.Rainbow)
-                .AddNextPlot()
-                //.AddPoints(remover.Points, OxyColors.Orange)
-                .AddPoints(evaluator.PositivePoints, OxyColors.Green)
-                .AddPoints(evaluator.NegativePoints, OxyColors.Red)
-                .AddConstraints(postConstraints, OxyPalettes.Rainbow, xMin: engine.Benchmark.Domains[0].LowerLimit, xMax: engine.Benchmark.Domains[0].UpperLimit)
-                //.AddNextPlot()
-                //.AddPoints(evaluator.PositivePoints, OxyColors.Green)
-                //.AddPoints(evaluator.NegativePoints, OxyColors.Red)
-                //.AddConstraints(engine.InitialPopulation.First().GetConstraints(experimentParameters), OxyPalettes.Rainbow)
-                .Show();
+            if (experimentParameters.NumberOfDimensions == 2)
+            {
+                visualization.ShowTwoPlots(positiveTrainingPoints, negativeTrainingPoints, engine.Benchmark, synthesizedModel);
+            }         
 
-            //var engine2 = engine as CmEngineWithoutRecombination;
+            //    .AddNextPlot()
+            //    .AddPoints(evaluator.PositivePoints, OxyColors.Green)
+            //    .AddPoints(evaluator.NegativePoints, OxyColors.Red)
+            //    .AddConstraints(engine.Benchmark.Constraints, OxyPalettes.Rainbow, xMin: engine.Benchmark.Domains[0].LowerLimit, xMax: engine.Benchmark.Domains[0].UpperLimit)
+            //    .AddNextPlot()
+            //    .AddPoints(evaluator.PositivePoints, OxyColors.Green)
+            //    .AddPoints(evaluator.NegativePoints, OxyColors.Red)
+            //    .AddConstraints(bestSolutionConstraints, OxyPalettes.Rainbow)
+            //    //.AddNextPlot()
+            //    //.AddPoints(remover.Points, OxyColors.Orange)
+            //    //.AddConstraints(testConstraints, OxyPalettes.Rainbow)
+            //    .AddNextPlot()
+            //    //.AddPoints(remover.Points, OxyColors.Orange)
+            //    .AddPoints(evaluator.PositivePoints, OxyColors.Green)
+            //    .AddPoints(evaluator.NegativePoints, OxyColors.Red)
+            //    .AddConstraints(postConstraints, OxyPalettes.Rainbow, xMin: engine.Benchmark.Domains[0].LowerLimit, xMax: engine.Benchmark.Domains[0].UpperLimit)
+            //    //.AddNextPlot()
+            //    //.AddPoints(evaluator.PositivePoints, OxyColors.Green)
+            //    //.AddPoints(evaluator.NegativePoints, OxyColors.Red)
+            //    //.AddConstraints(engine.InitialPopulation.First().GetConstraints(experimentParameters), OxyPalettes.Rainbow)
+            //    .Show();
 
-            //for (var i = 0; i < engine2.OneSolutionHistory.Count; i++)
-            //{
-            //    visualization
-            //        .AddNextPlot(title: "Step " + i)
-            //        .AddPoints(evaluator.PositivePoints, OxyColors.Green)
-            //        .AddConstraints(engine2.OneSolutionHistory[i].GetConstraints(experimentParameters), OxyPalettes.Rainbow);
-            //}
+            var positiveTestPoints = positivePointsGenerator.GeneratePoints(experimentParameters.NumberOfPositivePoints, engine.Benchmark);
 
-            //visualization.Show();
+            var negativeTestPoints = negativePointsGenerator.GeneratePoints(experimentParameters.NumberOfNegativePoints, engine.Benchmark);
+
+            var testPoints = positiveTestPoints.Concat(negativeTestPoints).ToArray();
+
+            var statistics = engine.EvaluateModel(testPoints);
 
             stoper.Stop();
             Console.WriteLine("Done!");
@@ -190,28 +197,20 @@ namespace ES.ExperimentsApp
             Console.WriteLine("SEC = " + stoper.Elapsed.TotalSeconds);
             Console.WriteLine("MIN = " + stoper.Elapsed.TotalMinutes);
             Console.WriteLine("MIN = " + stoper.Elapsed.Minutes);
-            Console.ReadKey();
-        }
 
-        private static void TestDb()
-        {
-            var path = DatabaseConfig.DbFullPath;
-            var db = new Database(path);            
-            var exp = db.NewExperiment();
-            for (int i = 0; i < DatabaseConfig.ColumnsNames.Count; i++)
-            {
-                exp.Add(DatabaseConfig.ColumnsNames[i], i);
-            }
-            exp.Add("Gowno", 45);
-            var set = exp.NewChildDataSet("tablica2");
-            set.Add("wewnetrzne", 33);
-            var set2 = set.NewChildDataSet("tablica3");
-            set2.Add("yyy", 44);
-            set2.Save();
-            set.Save();
-            exp.Save();
-            exp.Dispose();
-            db.Dispose();
-        }
+            Console.WriteLine("\n");
+            Console.WriteLine("TP = " + statistics.TruePositives);
+            Console.WriteLine("TN = " + statistics.TrueNegatives);
+            Console.WriteLine("FP = " + statistics.FalsePositives);
+            Console.WriteLine("FN = " + statistics.FalseNegatives);
+
+            Console.WriteLine("Recall = " + statistics.Recall);
+            Console.WriteLine("Precision = " + statistics.Precision);
+            Console.WriteLine("Accuracy = " + statistics.Accuracy);
+
+            Console.WriteLine("F1 = " + statistics.F1Score);
+
+            Console.ReadKey();
+        }     
     }
 }

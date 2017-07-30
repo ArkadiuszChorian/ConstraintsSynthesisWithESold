@@ -7,9 +7,9 @@ using ES.Engine.Mutation;
 using ES.Engine.MutationSupervison;
 using ES.Engine.PointsGeneration;
 using ES.Engine.PopulationGeneration;
+using ES.Engine.PrePostProcessing;
 using ES.Engine.Recombination;
 using ES.Engine.Selection;
-using ES.Engine.Solutions;
 
 namespace ES.Engine.Engine
 {
@@ -27,15 +27,22 @@ namespace ES.Engine.Engine
 
             //Points generators
             //var domain = new Domain2(experimentParameters);
-            IPointsGenerator positivePointsGenerator = new PositivePointsGenerator();
-            var positivePoints =
-                positivePointsGenerator.GeneratePoints(experimentParameters.NumberOfPositiveMeasurePoints, benchmark);
-            IPointsGenerator negativePointsGenerator = new NegativePointsGenerator(positivePoints, new CanberraDistanceCalculator());
+            //IPointsGenerator positivePointsGenerator = new PositivePointsGenerator();
+            //var positivePoints =
+            //    positivePointsGenerator.GeneratePoints(experimentParameters.NumberOfPositivePoints, benchmark);
+            //IPointsGenerator negativePointsGenerator = new NegativePointsGenerator(positivePoints, new CanberraDistanceCalculator());
 
-            //Evaluator
-            var negativePoints =
-                negativePointsGenerator.GeneratePoints(experimentParameters.NumberOfNegativeMeasurePoints, benchmark);
-            IEvaluator evaluator = new Evaluator(experimentParameters, positivePoints, negativePoints);
+            ////Evaluator
+            //var negativePoints =
+            //    negativePointsGenerator.GeneratePoints(experimentParameters.NumberOfNegativePoints, benchmark);
+            //IEvaluator evaluator = new Evaluator(experimentParameters, positivePoints, negativePoints);
+            IEvaluator evaluator = new Evaluator(experimentParameters);
+
+            //Redundant constraints remover
+            var redundantConstraintsRemover = new RedundantConstraintsRemover(new DomainSpaceSampler(), benchmark, experimentParameters);
+
+            //Statistics
+            var statistics = new Statistics();
 
             //Logger
             ILogger logger = null;
@@ -58,13 +65,15 @@ namespace ES.Engine.Engine
                     var rotationsRecombiner = RecombinersFactory.GetRotationsRecombiner(experimentParameters);
                     var rotationsMutator = MutatorsFactory.GetRotationsMutator(experimentParameters);
 
-                    engine = new CmEngineWithRecombination(benchmark, populationGenerator, evaluator, logger, objectMutator, stdDeviationsMutator, mutationRuleSupervisor, parentsSelector, survivorsSelector, positivePointsGenerator, negativePointsGenerator, experimentParameters, basePopulation, offspringPopulation, objectRecombiner, stdDevsRecombiner, rotationsMutator, rotationsRecombiner);
+                    //engine = new CmEngineWithRecombination(benchmark, populationGenerator, evaluator, logger, objectMutator, stdDeviationsMutator, mutationRuleSupervisor, parentsSelector, survivorsSelector, positivePointsGenerator, negativePointsGenerator, experimentParameters, basePopulation, offspringPopulation, objectRecombiner, stdDevsRecombiner, rotationsMutator, rotationsRecombiner);
+                    engine = new CmEngineWithRecombination(benchmark, populationGenerator, evaluator, logger, objectMutator, stdDeviationsMutator, mutationRuleSupervisor, parentsSelector, survivorsSelector, redundantConstraintsRemover, experimentParameters, statistics, basePopulation, offspringPopulation, objectRecombiner, stdDevsRecombiner, rotationsMutator, rotationsRecombiner);
                 }
                 else
                 {
                     var rotationsMutator = MutatorsFactory.GetRotationsMutator(experimentParameters);
 
-                    engine = new CmEngineWithoutRecombination(benchmark, populationGenerator, evaluator, logger, objectMutator, stdDeviationsMutator, mutationRuleSupervisor, parentsSelector, survivorsSelector, positivePointsGenerator, negativePointsGenerator, experimentParameters, basePopulation, offspringPopulation, rotationsMutator);
+                    //engine = new CmEngineWithoutRecombination(benchmark, populationGenerator, evaluator, logger, objectMutator, stdDeviationsMutator, mutationRuleSupervisor, parentsSelector, survivorsSelector, positivePointsGenerator, negativePointsGenerator, experimentParameters, basePopulation, offspringPopulation, rotationsMutator);
+                    engine = new CmEngineWithoutRecombination(benchmark, populationGenerator, evaluator, logger, objectMutator, stdDeviationsMutator, mutationRuleSupervisor, parentsSelector, survivorsSelector, redundantConstraintsRemover, experimentParameters, statistics, basePopulation, offspringPopulation, rotationsMutator);
                 }
             }
             else
@@ -74,11 +83,13 @@ namespace ES.Engine.Engine
                     var objectRecombiner = RecombinersFactory.GetObjectRecombiner(experimentParameters);
                     var stdDevsRecombiner = RecombinersFactory.GetStdDevsRecombiner(experimentParameters);
 
-                    engine = new UmEngineWithRecombination(benchmark, populationGenerator, evaluator, logger, objectMutator, stdDeviationsMutator, mutationRuleSupervisor, parentsSelector, survivorsSelector, positivePointsGenerator, negativePointsGenerator, experimentParameters, basePopulation, offspringPopulation, objectRecombiner, stdDevsRecombiner);
+                    //engine = new UmEngineWithRecombination(benchmark, populationGenerator, evaluator, logger, objectMutator, stdDeviationsMutator, mutationRuleSupervisor, parentsSelector, survivorsSelector, positivePointsGenerator, negativePointsGenerator, experimentParameters, basePopulation, offspringPopulation, objectRecombiner, stdDevsRecombiner);
+                    engine = new UmEngineWithRecombination(benchmark, populationGenerator, evaluator, logger, objectMutator, stdDeviationsMutator, mutationRuleSupervisor, parentsSelector, survivorsSelector, redundantConstraintsRemover, experimentParameters, statistics, basePopulation, offspringPopulation, objectRecombiner, stdDevsRecombiner);
                 }
                 else
                 {
-                    engine = new UmEngineWithoutRecombination(benchmark, populationGenerator, evaluator, logger, objectMutator, stdDeviationsMutator, mutationRuleSupervisor, parentsSelector, survivorsSelector, positivePointsGenerator, negativePointsGenerator, experimentParameters, basePopulation, offspringPopulation);
+                    //engine = new UmEngineWithoutRecombination(benchmark, populationGenerator, evaluator, logger, objectMutator, stdDeviationsMutator, mutationRuleSupervisor, parentsSelector, survivorsSelector, positivePointsGenerator, negativePointsGenerator, experimentParameters, basePopulation, offspringPopulation);
+                    engine = new UmEngineWithoutRecombination(benchmark, populationGenerator, evaluator, logger, objectMutator, stdDeviationsMutator, mutationRuleSupervisor, parentsSelector, survivorsSelector, redundantConstraintsRemover, experimentParameters, statistics, basePopulation, offspringPopulation);
                 }
             }             
             

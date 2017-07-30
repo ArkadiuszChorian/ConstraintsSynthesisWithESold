@@ -1,6 +1,5 @@
 ﻿using ES.Engine.Constraints;
 using ES.Engine.Models;
-using ES.Engine.Solutions;
 using ES.Engine.Utils;
 
 namespace ES.Engine.Evaluation
@@ -52,17 +51,21 @@ namespace ES.Engine.Evaluation
         {
             var numberOfPositivePointsSatisfyingConstraints = 0;
             var numberOfNegativePointsSatisfyingConstraints = 0;
+            var numberOfPositivePoints = PositivePoints.Length;
+            var numberOfNegativePoints = NegativePoints.Length;
             var constraints = solution.GetConstraints(ExperimentParameters);
 
-            for (var i = 0; i < PositivePoints.Length; i++)
+            for (var i = 0; i < numberOfPositivePoints; i++)
             {
-                if (IsSatisfyingConstraints(constraints, PositivePoints[i]))
+                //if (IsSatisfyingConstraints(constraints, PositivePoints[i]))
+                if (constraints.IsSatisfyingConstraints(PositivePoints[i]))
                     numberOfPositivePointsSatisfyingConstraints++;
             }
 
-            for (var i = 0; i < NegativePoints.Length; i++)
+            for (var i = 0; i < numberOfNegativePoints; i++)
             {
-                if (IsSatisfyingConstraints(constraints, NegativePoints[i]))
+                //if (IsSatisfyingConstraints(constraints, NegativePoints[i]))
+                if (constraints.IsSatisfyingConstraints(NegativePoints[i]))
                     numberOfNegativePointsSatisfyingConstraints++;
             }
 
@@ -71,7 +74,7 @@ namespace ES.Engine.Evaluation
             //    Debugger.Break();
             //}
 
-            return (double)numberOfPositivePointsSatisfyingConstraints / (PositivePoints.Length + numberOfNegativePointsSatisfyingConstraints);
+            return (double)numberOfPositivePointsSatisfyingConstraints / (numberOfPositivePoints + numberOfNegativePointsSatisfyingConstraints);
         }
 
         //private bool IsSatisfyingConstraints2(Solution solution, Point point)
@@ -129,17 +132,17 @@ namespace ES.Engine.Evaluation
         //    return constraints.All(constraint => constraint.IsSatisfyingConstraint(point));
         //}
 
-        private static bool IsSatisfyingConstraints(Constraint[] constraints, Point point)
-        {
-            var length = constraints.Length;
+        //private static bool IsSatisfyingConstraints(Constraint[] constraints, Point point)
+        //{
+        //    var length = constraints.Length;
 
-            for (var i = 0; i < length; i++)
-            {
-                if (!constraints[i].IsSatisfyingConstraint(point))
-                    return false;
-            }
+        //    for (var i = 0; i < length; i++)
+        //    {
+        //        if (!constraints[i].IsSatisfyingConstraint(point))
+        //            return false;
+        //    }
 
-            return true;
-        }
+        //    return true;
+        //}
     }
 }

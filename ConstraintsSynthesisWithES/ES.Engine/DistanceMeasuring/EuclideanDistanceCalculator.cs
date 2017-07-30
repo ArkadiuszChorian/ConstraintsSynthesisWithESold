@@ -4,7 +4,7 @@ namespace ES.Engine.DistanceMeasuring
 {
     public class EuclideanDistanceCalculator : IDistanceCalculator
     {
-        public double CalculateDistance(double[] vector1, double[] vector2)
+        public double Calculate(double[] vector1, double[] vector2)
         {
             var sum = 0.0;
             var numberOfDimensions = vector1.Length;
