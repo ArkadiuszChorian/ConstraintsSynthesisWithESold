@@ -2,12 +2,12 @@
 {
     public class Point
     {
-        public Point(int numberOfDimensions)
+        public Point(long numberOfDimensions)
         {
             Coordinates = new double[numberOfDimensions];
         }
 
-        public Point(int numberOfDimensions, ClassificationType classificationType)
+        public Point(long numberOfDimensions, ClassificationType classificationType)
         {
             Coordinates = new double[numberOfDimensions];
             ClassificationType = classificationType;

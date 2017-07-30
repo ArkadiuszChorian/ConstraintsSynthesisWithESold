@@ -38,6 +38,7 @@ namespace ES.Engine.Utils
         public const double DefaultDomainLowerLimit = -100;
         public const double DefaultDomainUpperLimit = 100;
         public const bool UsePointsGeneration = true;
+        public const int MaxNumberOfPointsInSingleArray = 800000;
 
         public const int BasePopulationSize = 15;
         public const int OffspringPopulationSize = 100;

@@ -28,7 +28,6 @@ namespace ES.Engine.Mutation
                     }
                     else
                     {
-                        //covarianceMatrix[i, j] = (Math.Pow(solution.StdDeviationsCoefficients[i], 2) - Math.Pow(solution.StdDeviationsCoefficients[j], 2)) * Math.Tan(2 * solution.RotationsCoefficients[i][j]) / 2;
                         covarianceMatrix[i, j] = (Math.Pow(solution.StdDeviationsCoefficients[i], 2) - Math.Pow(solution.StdDeviationsCoefficients[j], 2)) * Math.Tan(2 * solution.RotationsCoefficients[FromMatrixToVector(i, j, vectorSize)]) / 2;
                     }
                 }

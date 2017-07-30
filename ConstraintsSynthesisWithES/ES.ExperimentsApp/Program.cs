@@ -19,11 +19,13 @@ namespace ES.ExperimentsApp
     {
         static void Main(string[] args)
         {
+            const int version = 1;
+            var databaseContext = new DatabaseContext(DatabaseConfig.DbFullPath, version);
 
             var stoper = new Stopwatch();
             stoper.Start();
 
-            var experimentParameters = new ExperimentParameters(6, 10,
+            var experimentParameters = new ExperimentParameters(2, 10,
                 typeOfMutation: ExperimentParameters.MutationType.Correlated,
                 typeOfBenchmark: ExperimentParameters.BenchmarkType.Cuben,
                 stepThreshold: 0.1, numberOfGenerations: 100,
@@ -41,8 +43,8 @@ namespace ES.ExperimentsApp
                 //simplexnBoundaryValue: 2,
                 seed: 1,
                 useRecombination: false,
-                numberOfParentsSolutionsToSelect: 5,
-                domainSamplingStep: 1
+                numberOfParentsSolutionsToSelect: 5
+                //domainSamplingStep: 1
                 );
 
             var experimentParameters4 = new ExperimentParameters(2, 10,
@@ -134,6 +136,15 @@ namespace ES.ExperimentsApp
 
             var trainingPoints = positiveTrainingPoints.Concat(negativeTrainingPoints).ToArray();
 
+            //try
+            //{
+            //    engine.SynthesizeModel(trainingPoints);
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine(e);
+            //    throw;
+            //}
             engine.SynthesizeModel(trainingPoints);
 
             //var bestSolutionConstraints = engine.BasePopulation.First().GetConstraints(experimentParameters);
@@ -209,6 +220,13 @@ namespace ES.ExperimentsApp
             Console.WriteLine("Accuracy = " + statistics.Accuracy);
 
             Console.WriteLine("F1 = " + statistics.F1Score);
+
+            databaseContext.Initialize();
+            databaseContext.Insert(experimentParameters);
+            databaseContext.Insert(statistics);
+            databaseContext.Insert(synthesizedModel, engine.Benchmark);
+            databaseContext.Save();
+            databaseContext.Dispose();
 
             Console.ReadKey();
         }     

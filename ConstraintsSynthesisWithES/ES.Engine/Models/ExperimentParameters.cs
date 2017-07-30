@@ -48,6 +48,8 @@ namespace ES.Engine.Models
                 // ReSharper disable once SimplifyConditionalTernaryExpression === Reason: All defaults have to be in Defaults class.
                 UsePointsGeneration = Arguments.HasKey(nameof(Defaults.UsePointsGeneration)) ? Arguments.Get<bool>(nameof(Defaults.UsePointsGeneration)) : Defaults.UsePointsGeneration;
 
+                MaxNumberOfPointsInSingleArray = Arguments.HasKey(nameof(Defaults.MaxNumberOfPointsInSingleArray)) ? Arguments.Get<int>(nameof(Defaults.MaxNumberOfPointsInSingleArray)) : Defaults.MaxNumberOfPointsInSingleArray;
+
                 BasePopulationSize = Arguments.HasKey(nameof(Defaults.BasePopulationSize)) ? Arguments.Get<int>(nameof(Defaults.BasePopulationSize)) : Defaults.BasePopulationSize;
                 OffspringPopulationSize = Arguments.HasKey(nameof(Defaults.OffspringPopulationSize)) ? Arguments.Get<int>(nameof(Defaults.OffspringPopulationSize)) : Defaults.OffspringPopulationSize;
                 NumberOfGenerations = Arguments.HasKey(nameof(Defaults.NumberOfGenerations)) ? Arguments.Get<int>(nameof(Defaults.NumberOfGenerations)) : Defaults.NumberOfGenerations;
@@ -99,6 +101,7 @@ namespace ES.Engine.Models
             double defaultDomainLowerLimit = Defaults.DefaultDomainLowerLimit,
             double defaultDomainUpperLimit = Defaults.DefaultDomainUpperLimit,
             bool usePointsGeneration = Defaults.UsePointsGeneration,
+            int maxNumberOfPointsInSingleArray = Defaults.MaxNumberOfPointsInSingleArray,
 
             int basePopulationSize = Defaults.BasePopulationSize,
             int offspringPopulationSize = Defaults.OffspringPopulationSize,
@@ -143,6 +146,7 @@ namespace ES.Engine.Models
             DefaultDomainLowerLimit = defaultDomainLowerLimit;
             DefaultDomainUpperLimit = defaultDomainUpperLimit;
             UsePointsGeneration = usePointsGeneration;
+            MaxNumberOfPointsInSingleArray = maxNumberOfPointsInSingleArray;
 
             BasePopulationSize = basePopulationSize;
             OffspringPopulationSize = offspringPopulationSize;
@@ -220,6 +224,7 @@ namespace ES.Engine.Models
         public double DefaultDomainLowerLimit { get; set; }
         public double DefaultDomainUpperLimit { get; set; }
         public bool UsePointsGeneration { get; set; }
+        public int MaxNumberOfPointsInSingleArray { get; set; }
 
         //Experiment execution
         public int BasePopulationSize { get; set; }

@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace ES.Engine.Utils
 {
     public static class DatabaseConfig
-    {
+    {        
         static DatabaseConfig()
         {
             DriveToStore = DriveInfo.GetDrives().Any(x => x.Name.Contains("F"))
@@ -23,5 +24,15 @@ namespace ES.Engine.Utils
         private static string InnerPath = "OneDrive\\MGR Database\\Database v1.db";
         public static string DbFullPath => Path.GetFullPath(DriveToStore + InnerPath);
         public static List<string> ColumnsNames { get; }
+
+        public static readonly Type[] SerializableTypes = {
+            typeof(bool).BaseType,
+            typeof(int).BaseType,
+            typeof(long).BaseType,
+            typeof(double).BaseType,
+            typeof(decimal).BaseType,
+            typeof(float).BaseType,
+            typeof(Enum)
+        };
     }
 }

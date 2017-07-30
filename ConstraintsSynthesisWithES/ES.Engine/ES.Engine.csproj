@@ -17,7 +17,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -142,6 +142,7 @@
     <Compile Include="Mutation\IMutator.cs" />
     <Compile Include="Selection\ISurvivorsSelector.cs" />
     <Compile Include="Utils\DatabaseConfig.cs" />
+    <Compile Include="Utils\DatabaseContext.cs" />
     <Compile Include="Utils\DeepCopyByExpressionTrees.cs" />
     <Compile Include="Utils\Defaults.cs" />
     <Compile Include="Utils\Extensions.cs" />

@@ -102,9 +102,9 @@ namespace ES.Engine.Engine
 
             for (var i = 0; i < numberOfGenerations; i++)
             {
-                Evolve(offspringPopulationSize);
+                Evolve(offspringPopulationSize);              
             }    
-
+            
             SynthesizedModel = RedundantConstriantsRemover.ApplyProcessing(BasePopulation.First().GetConstraints(ExperimentParameters));
         }
 

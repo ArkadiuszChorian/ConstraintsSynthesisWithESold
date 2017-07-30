@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ES.Engine.Benchmarks;
 using ES.Engine.Constraints;
@@ -11,12 +12,14 @@ namespace ES.Engine.PrePostProcessing
     {
         private readonly IPointsGenerator _domainSpaceSampler;
         private readonly IBenchmark _benchmark;
-        private readonly int _numberOfPointsToGenerate;
+        private readonly long _numberOfPointsToGenerate;
+        private readonly int _maxNumberOfPointsInSingleArray;
 
         public RedundantConstraintsRemover(IPointsGenerator pointsGenerator, IBenchmark benchmark, ExperimentParameters experimentParameters)
         {
             _domainSpaceSampler = pointsGenerator;
             _benchmark = benchmark;
+            _maxNumberOfPointsInSingleArray = experimentParameters.MaxNumberOfPointsInSingleArray;
             
             var numberOfDimensions = benchmark.Domains.Length;
             var domains = benchmark.Domains;
@@ -28,53 +31,56 @@ namespace ES.Engine.PrePostProcessing
                 temp *= (domains[i].UpperLimit - domains[i].LowerLimit) / domainSamplingStep;
             }
 
-            _numberOfPointsToGenerate = (int) temp;
-
-            //var spaceSize = 1.0;
-
-
-
-            //_numberOfPointsToGenerate = (int)(experimentParameters.DomainSamplingStep * spaceSize);
+            _numberOfPointsToGenerate = (long) temp;
         }
 
         public Constraint[] ApplyProcessing(Constraint[] constraints)
-        {          
-            var points = _domainSpaceSampler.GeneratePoints(_numberOfPointsToGenerate, _benchmark);
-            Points = points;         
+        {
+            var count = 1;
+            var numberOfPointsInSingleArray = (int)_numberOfPointsToGenerate;
 
-            var numberOfPoints = points.Length;
+            if (_numberOfPointsToGenerate > _maxNumberOfPointsInSingleArray)
+            {
+                count = (int)Math.Ceiling((double)_numberOfPointsToGenerate / _maxNumberOfPointsInSingleArray);
+                numberOfPointsInSingleArray = _maxNumberOfPointsInSingleArray;                
+            }           
+            
             var allConstraints = constraints.ToList();
             var reducedConstraints = new List<Constraint>();
-            
-            for (var i = 0; i < numberOfPoints; i++)
+
+            for (var i = 0; i < count; i++)
             {
-                var numberOfConstraints = allConstraints.Count;
-                var isCutByOneConstraint = false;
-                Constraint obligatoryConstraint = null;        
+                var points = _domainSpaceSampler.GeneratePoints(numberOfPointsInSingleArray, _benchmark);
+                var numberOfPoints = points.Length;
 
-                for (var j = 0; j < numberOfConstraints; j++)
+                for (var j = 0; j < numberOfPoints; j++)
                 {
-                    if (allConstraints[j].IsSatisfyingConstraint(points[i])) continue;
+                    var numberOfConstraints = allConstraints.Count;
+                    var isCutByOneConstraint = false;
+                    Constraint obligatoryConstraint = null;
 
-                    if (isCutByOneConstraint)
+                    for (var k = 0; k < numberOfConstraints; k++)
                     {
-                        isCutByOneConstraint = false;
-                        break;
-                    }
-                    
-                    isCutByOneConstraint = true;
-                    obligatoryConstraint = allConstraints[j];
-                }
+                        if (allConstraints[k].IsSatisfyingConstraint(points[j])) continue;
 
-                if (isCutByOneConstraint && !reducedConstraints.Contains(obligatoryConstraint))
-                {
-                    reducedConstraints.Add(obligatoryConstraint);
+                        if (isCutByOneConstraint)
+                        {
+                            isCutByOneConstraint = false;
+                            break;
+                        }
+
+                        isCutByOneConstraint = true;
+                        obligatoryConstraint = allConstraints[k];
+                    }
+
+                    if (isCutByOneConstraint && !reducedConstraints.Contains(obligatoryConstraint))
+                    {
+                        reducedConstraints.Add(obligatoryConstraint);
+                    }
                 }
             }
-
+            
             return reducedConstraints.ToArray();
         }
-
-        public Point[] Points { get; set; }    
     }
 }

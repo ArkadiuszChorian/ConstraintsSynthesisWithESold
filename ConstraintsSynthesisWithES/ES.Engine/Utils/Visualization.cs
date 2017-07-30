@@ -147,7 +147,7 @@ namespace ES.Engine.Utils
 
                 var series = new FunctionSeries(x => b - a * x, xMin, xMax, step)
                 {
-                    Color = color.Equals(default(OxyColor)) ? OxyColors.Black : color,
+                    Color = palette?.Colors[i] ?? color,
                 };
 
                 plot.Model.Series.Add(series);
