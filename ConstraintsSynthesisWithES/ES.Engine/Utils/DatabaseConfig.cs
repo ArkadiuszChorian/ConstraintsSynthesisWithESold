@@ -13,11 +13,11 @@ namespace ES.Engine.Utils
                 ? DriveInfo.GetDrives().First(d => d.Name.Contains("F")).Name
                 : DriveInfo.GetDrives().First(d => d.Name.Contains("C")).Name;
 
-            ColumnsNames = new List<string>()
-            {
-                "Kolumna_1",
-                "Kolumna_2"
-            };
+            //ColumnsNames = new List<string>()
+            //{
+            //    "Kolumna_1",
+            //    "Kolumna_2"
+            //};
         }
 
         private static string DriveToStore { get; }

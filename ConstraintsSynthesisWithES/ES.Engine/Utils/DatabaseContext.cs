@@ -11,19 +11,23 @@ namespace ES.Engine.Utils
     public class DatabaseContext
     {
         private readonly Database _database;
+        private readonly DatabaseEngine _databaseEngine;
         private readonly DataSet _experiment;
         private readonly DataSet _error;
-
+        
         private readonly int _version;
+        private bool _anyErrors;
 
         public DatabaseContext(string dbFilePath, int version)
         {
             _database = new Database(dbFilePath);
+            _databaseEngine = new DatabaseEngine(dbFilePath);
 
             _experiment = _database.NewExperiment();
             _error = _experiment.NewChildDataSet("errors");
 
             _version = version;
+            _anyErrors = false;
         }
         
         public void Initialize()
@@ -53,11 +57,18 @@ namespace ES.Engine.Utils
             _error.Add(nameof(exception.HResult), exception.HResult);
             _error.Add(nameof(exception.Message), exception.Message);
             _error.Add(nameof(exception.StackTrace), exception.StackTrace);
+
+            _anyErrors = true;
         }
 
         public void Save()
         {
-            _experiment.Save();
+            _experiment.Save(false);
+
+            if (!_anyErrors) return;
+
+            _error.Save();
+            _anyErrors = false;
         }
 
         public void Dispose()

@@ -5,7 +5,7 @@ using ES.Engine.Models;
 
 namespace ES.Engine.Utils
 {
-    internal static class Defaults
+    public static class Defaults
     {   
         public static double GlobalLerningRate(int numberOfDimensions)
         {
@@ -33,8 +33,8 @@ namespace ES.Engine.Utils
         public const double PartOfSurvivorsSolutionsToSelect = (double)1 / 7;
         public const ExperimentParameters.SelectionType TypeOfSurvivorsSelection = ExperimentParameters.SelectionType.Distinct;
 
-        public const int NumberOfPositiveMeasurePoints = 100;
-        public const int NumberOfNegativeMeasurePoints = 100;
+        public const int NumberOfPositivePoints = 100;
+        public const int NumberOfNegativePoints = 100;
         public const double DefaultDomainLowerLimit = -100;
         public const double DefaultDomainUpperLimit = 100;
         public const bool UsePointsGeneration = true;

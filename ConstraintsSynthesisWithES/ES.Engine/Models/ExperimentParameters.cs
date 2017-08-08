@@ -38,8 +38,8 @@ namespace ES.Engine.Models
                 PartOfSurvivorsSolutionsToSelect = Arguments.HasKey(nameof(Defaults.PartOfSurvivorsSolutionsToSelect)) ? Arguments.Get<double>(nameof(Defaults.PartOfSurvivorsSolutionsToSelect)) : Defaults.PartOfSurvivorsSolutionsToSelect;
                 TypeOfSurvivorsSelection = Arguments.HasKey(nameof(Defaults.TypeOfSurvivorsSelection)) ? Arguments.Get<SelectionType>(nameof(Defaults.TypeOfSurvivorsSelection)) : Defaults.TypeOfSurvivorsSelection;
 
-                NumberOfPositivePoints = Arguments.HasKey(nameof(Defaults.NumberOfPositiveMeasurePoints)) ? Arguments.Get<int>(nameof(Defaults.NumberOfPositiveMeasurePoints)) : Defaults.NumberOfPositiveMeasurePoints;
-                NumberOfNegativePoints = Arguments.HasKey(nameof(Defaults.NumberOfNegativeMeasurePoints)) ? Arguments.Get<int>(nameof(Defaults.NumberOfNegativeMeasurePoints)) : Defaults.NumberOfNegativeMeasurePoints;
+                NumberOfPositivePoints = Arguments.HasKey(nameof(Defaults.NumberOfPositivePoints)) ? Arguments.Get<int>(nameof(Defaults.NumberOfPositivePoints)) : Defaults.NumberOfPositivePoints;
+                NumberOfNegativePoints = Arguments.HasKey(nameof(Defaults.NumberOfNegativePoints)) ? Arguments.Get<int>(nameof(Defaults.NumberOfNegativePoints)) : Defaults.NumberOfNegativePoints;
                 //DefaultDomainLimit = Tuple.Create(Arguments.HasKey(nameof(Defaults.DefaultDomainLowerLimit)) ? Arguments.Get<double>(nameof(Defaults.DefaultDomainLowerLimit)) : Defaults.DefaultDomainLowerLimit,
                 //    Arguments.HasKey(nameof(Defaults.DefaultDomainUpperLimit)) ? Arguments.Get<double>(nameof(Defaults.DefaultDomainUpperLimit)) : Defaults.DefaultDomainUpperLimit);
                 DefaultDomainLowerLimit = Arguments.HasKey(nameof(Defaults.DefaultDomainLowerLimit)) ? Arguments.Get<double>(nameof(Defaults.DefaultDomainLowerLimit)) : Defaults.DefaultDomainLowerLimit;
@@ -69,7 +69,7 @@ namespace ES.Engine.Models
             catch (KeyNotFoundException)
             {
                 throw new ArgumentException(
-                    "Given command line arguments are incorrect. Give correct command line arguments or use constructor with parameters. You have to give at least numberOfDimensions and numberOfConstraints arguments.");
+                    "Given command line arguments are incorrect. Give correct command line arguments or use constructor with parameters. You have to give at least NumberOfDimensions and NumberOfConstraints arguments.");
             }
         }
 
@@ -96,8 +96,8 @@ namespace ES.Engine.Models
             double partOfSurvivorsSolutionsToSelect = Defaults.PartOfSurvivorsSolutionsToSelect,
             SelectionType typeOfSurvivorsSelection = Defaults.TypeOfSurvivorsSelection,
 
-            int numberOfPositivePoints = Defaults.NumberOfPositiveMeasurePoints,
-            int numberOfNegativePoints = Defaults.NumberOfNegativeMeasurePoints,
+            int numberOfPositivePoints = Defaults.NumberOfPositivePoints,
+            int numberOfNegativePoints = Defaults.NumberOfNegativePoints,
             double defaultDomainLowerLimit = Defaults.DefaultDomainLowerLimit,
             double defaultDomainUpperLimit = Defaults.DefaultDomainUpperLimit,
             bool usePointsGeneration = Defaults.UsePointsGeneration,

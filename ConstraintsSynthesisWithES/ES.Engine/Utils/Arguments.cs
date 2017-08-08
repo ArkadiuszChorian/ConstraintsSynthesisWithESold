@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
+using ES.Engine.Models;
 
 namespace ES.Engine.Utils
 {
@@ -158,5 +160,59 @@ namespace ES.Engine.Utils
         }       
 
         public string this[string key] => Get(key);
+
+        [SuppressMessage("ReSharper", "ArgumentsStyleOther")]
+        [SuppressMessage("ReSharper", "ArgumentsStyleNamedExpression")]
+        [SuppressMessage("ReSharper", "ArrangeStaticMemberQualifier")]
+        public static ExperimentParameters GetExperimentParameters()
+        {
+            var numberOfDimensions = Arguments.Get<int>(nameof(ExperimentParameters.NumberOfDimensions));
+            var numberOfConstraints = Arguments.Get<int>(nameof(ExperimentParameters.NumberOfConstraints));
+
+            return new ExperimentParameters(
+                numberOfDimensions: numberOfDimensions,
+
+                numberOfConstraints: numberOfConstraints,
+
+                seed: Arguments.Get(nameof(ExperimentParameters.Seed), Defaults.Seed),
+
+                domainSamplingStep: Arguments.Get(nameof(ExperimentParameters.DomainSamplingStep), Defaults.DomainSamplingStep),
+
+                ballnBoundaryValue: Arguments.Get(nameof(ExperimentParameters.BallnBoundaryValue), Defaults.BallnBoundaryValue),
+                cubenBoundaryValue: Arguments.Get(nameof(ExperimentParameters.CubenBoundaryValue), Defaults.CubenBoundaryValue),
+                simplexnBoundaryValue: Arguments.Get(nameof(ExperimentParameters.SimplexnBoundaryValue), Defaults.SimplexnBoundaryValue),
+
+                globalLerningRate: Arguments.Get(nameof(ExperimentParameters.GlobalLearningRate), Defaults.GlobalLerningRate(numberOfDimensions)),
+                individualLearningRate: Arguments.Get(nameof(ExperimentParameters.IndividualLearningRate), Defaults.IndividualLearningRate(numberOfDimensions)),
+                stepThreshold: Arguments.Get(nameof(ExperimentParameters.StepThreshold), Defaults.StepThreshold),
+                rotationAngle: Arguments.Get(nameof(ExperimentParameters.RotationAngle), Defaults.RotationAngle),
+                typeOfMutation: Arguments.Get(nameof(ExperimentParameters.TypeOfMutation), Defaults.TypeOfMutation),
+
+                numberOfParentsSolutionsToSelect: Arguments.Get(nameof(ExperimentParameters.NumberOfParentsSolutionsToSelect), Defaults.NumberOfParentsSolutionsToSelect),
+                partOfSurvivorsSolutionsToSelect: Arguments.Get(nameof(ExperimentParameters.PartOfSurvivorsSolutionsToSelect), Defaults.PartOfSurvivorsSolutionsToSelect),
+                typeOfSurvivorsSelection: Arguments.Get(nameof(ExperimentParameters.TypeOfSurvivorsSelection), Defaults.TypeOfSurvivorsSelection),
+
+                numberOfPositivePoints: Arguments.Get(nameof(ExperimentParameters.NumberOfPositivePoints), Defaults.NumberOfPositivePoints),
+                numberOfNegativePoints: Arguments.Get(nameof(ExperimentParameters.NumberOfNegativePoints), Defaults.NumberOfNegativePoints),
+                defaultDomainLowerLimit: Arguments.Get(nameof(ExperimentParameters.DefaultDomainLowerLimit), Defaults.DefaultDomainLowerLimit),
+                defaultDomainUpperLimit: Arguments.Get(nameof(ExperimentParameters.DefaultDomainUpperLimit), Defaults.DefaultDomainUpperLimit),
+                usePointsGeneration: Arguments.Get(nameof(ExperimentParameters.UsePointsGeneration), Defaults.UsePointsGeneration),
+                maxNumberOfPointsInSingleArray: Arguments.Get(nameof(ExperimentParameters.MaxNumberOfPointsInSingleArray), Defaults.MaxNumberOfPointsInSingleArray),
+
+                basePopulationSize: Arguments.Get(nameof(ExperimentParameters.BasePopulationSize), Defaults.BasePopulationSize),
+                offspringPopulationSize: Arguments.Get(nameof(ExperimentParameters.OffspringPopulationSize), Defaults.OffspringPopulationSize),
+                numberOfGenerations: Arguments.Get(nameof(ExperimentParameters.NumberOfGenerations), Defaults.NumberOfGenerations),
+                oneFifthRuleCheckInterval: Arguments.Get(nameof(ExperimentParameters.OneFifthRuleCheckInterval), Defaults.OneFifthRuleCheckInterval),
+                oneFifthRuleScalingFactor: Arguments.Get(nameof(ExperimentParameters.OneFifthRuleScalingFactor), Defaults.OneFifthRuleScalingFactor),
+
+                useRecombination: Arguments.Get(nameof(ExperimentParameters.UseRecombination), Defaults.UseRecombination),
+                typeOfObjectsRecombiner: Arguments.Get(nameof(ExperimentParameters.TypeOfObjectsRecombiner), Defaults.TypeOfObjectsRecombiner),
+                typeOfStdDeviationsRecombiner: Arguments.Get(nameof(ExperimentParameters.TypeOfStdDeviationsRecombiner), Defaults.TypeOfStdDeviationsRecombiner),
+                typeOfRotationsRecombiner: Arguments.Get(nameof(ExperimentParameters.TypeOfRotationsRecombiner), Defaults.TypeOfRotationsRecombiner),
+                partOfPopulationToRecombine: Arguments.Get(nameof(ExperimentParameters.PartOfPopulationToRecombine), Defaults.PartOfPopulationToRecombine),
+
+                typeOfBenchmark: Arguments.Get(nameof(ExperimentParameters.TypeOfBenchmark), Defaults.TypeOfBenchmark),
+                constraintsToPointsGeneration: Defaults.ConstraintsToPointsGeneration);
+        }
     }
 }

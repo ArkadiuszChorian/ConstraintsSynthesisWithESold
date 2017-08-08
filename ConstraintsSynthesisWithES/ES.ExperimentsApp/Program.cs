@@ -21,9 +21,18 @@ namespace ES.ExperimentsApp
         {
             const int version = 1;
             var databaseContext = new DatabaseContext(DatabaseConfig.DbFullPath, version);
+            //var databaseContext = new DatabaseContext("test.db", version);
+            var db = new DatabaseEngine(DatabaseConfig.DbFullPath);
+            var result =
+                db.PrepareStatement("SELECT NumberOfDimensions, Seed FROM experiments WHERE id = 7")
+                    .ExecuteReader();
+            
+            //var p1 = result.
 
             var stoper = new Stopwatch();
             stoper.Start();
+
+            var ep = Arguments.GetExperimentParameters();
 
             var experimentParameters = new ExperimentParameters(2, 10,
                 typeOfMutation: ExperimentParameters.MutationType.Correlated,
@@ -93,7 +102,7 @@ namespace ES.ExperimentsApp
                 numberOfNegativePoints: 100
                 );
 
-            var visualization = new Visualization();
+            //var visualization = new Visualization();
 
             var constraints = new List<Constraint>
             {
@@ -167,10 +176,10 @@ namespace ES.ExperimentsApp
             //var postConstraints = remover.ApplyProcessing(bestSolutionConstraints);
             //var postConstraints = remover.ApplyProcessing(bestSolutionConstraints.ToArray());
 
-            if (experimentParameters.NumberOfDimensions == 2)
-            {
-                visualization.ShowTwoPlots(positiveTrainingPoints, negativeTrainingPoints, engine.Benchmark, synthesizedModel);
-            }         
+            //if (experimentParameters.NumberOfDimensions == 2)
+            //{
+            //    visualization.ShowTwoPlots(positiveTrainingPoints, negativeTrainingPoints, engine.Benchmark, synthesizedModel);
+            //}         
 
             //    .AddNextPlot()
             //    .AddPoints(evaluator.PositivePoints, OxyColors.Green)
