@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Linq;
-using ES.Engine.Constraints;
 using ES.Engine.DistanceMeasuring;
 using ES.Engine.Engine;
-using ES.Engine.Evaluation;
 using ES.Engine.Models;
 using ES.Engine.PointsGeneration;
-using ES.Engine.PrePostProcessing;
 using ES.Engine.Utils;
-using ExperimentDatabase;
-using OxyPlot;
+using Version = ES.Engine.Models.Version;
 
 namespace ES.ExperimentsApp
 {
@@ -19,25 +17,17 @@ namespace ES.ExperimentsApp
     {
         static void Main(string[] args)
         {
-            const int version = 1;
-            var databaseContext = new DatabaseContext(DatabaseConfig.DbFullPath, version);
-            //var databaseContext = new DatabaseContext("test.db", version);
-            var db = new DatabaseEngine(DatabaseConfig.DbFullPath);
-            var result =
-                db.PrepareStatement("SELECT NumberOfDimensions, Seed FROM experiments WHERE id = 7")
-                    .ExecuteReader();
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;//CultureInfo.GetCultureInfo("en-US");
+
+            var dbPath = Path.GetFullPath("Database test.db");
+            var databaseContext = new DatabaseContext(dbPath);
             
-            //var p1 = result.
-
-            var stoper = new Stopwatch();
-            stoper.Start();
-
-            var ep = Arguments.GetExperimentParameters();
+            //var experimentParameters = Arguments.GetExperimentParameters();
 
             var experimentParameters = new ExperimentParameters(2, 10,
                 typeOfMutation: ExperimentParameters.MutationType.Correlated,
-                typeOfBenchmark: ExperimentParameters.BenchmarkType.Cuben,
-                stepThreshold: 0.1, numberOfGenerations: 100,
+                typeOfBenchmark: ExperimentParameters.BenchmarkType.Simplexn,
+                stepThreshold: 0.1, numberOfGenerations: 1,
                 basePopulationSize: 15,
                 //basePopulationSize: 3,
                 offspringPopulationSize: 100,
@@ -46,162 +36,49 @@ namespace ES.ExperimentsApp
                 //globalLerningRate: 0.7,
                 individualLearningRate: 1 / Math.Sqrt(2 * Math.Sqrt(2)),
                 //individualLearningRate: 0.8,
-                numberOfPositivePoints: 1000,
-                numberOfNegativePoints: 1000,
+                numberOfPositivePoints: 10,
+                numberOfNegativePoints: 10,
                 ballnBoundaryValue: 2,
                 //simplexnBoundaryValue: 2,
                 seed: 1,
                 useRecombination: false,
                 numberOfParentsSolutionsToSelect: 5
                 //domainSamplingStep: 1
-                );
-
-            var experimentParameters4 = new ExperimentParameters(2, 10,
-                typeOfMutation: ExperimentParameters.MutationType.Correlated,
-                typeOfBenchmark: ExperimentParameters.BenchmarkType.Simplexn,
-                stepThreshold: 0.1, numberOfGenerations: 300,
-                basePopulationSize: 15,
-                //basePopulationSize: 3,
-                offspringPopulationSize: 100,
-                //offspringPopulationSize: 20,
-                globalLerningRate: 1 / Math.Sqrt(2 * 2),
-                //globalLerningRate: 0.7,
-                individualLearningRate: 1 / Math.Sqrt(2 * Math.Sqrt(2)),
-                //individualLearningRate: 0.8,
-                numberOfPositivePoints: 300,
-                numberOfNegativePoints: 300,
-                ballnBoundaryValue: 10
-                );
-
-            var experimentParameters3 = new ExperimentParameters(2, 10, 
-                typeOfMutation: ExperimentParameters.MutationType.Correlated,
-                stepThreshold: 0.1, numberOfGenerations: 300,
-                basePopulationSize: 30,
-                //basePopulationSize: 3,
-                offspringPopulationSize: 200,
-                //offspringPopulationSize: 20,
-                globalLerningRate: 1 / Math.Sqrt(2 * 2),
-                //globalLerningRate: 0.7,
-                individualLearningRate: 1 / Math.Sqrt(2 * Math.Sqrt(2)),
-                //individualLearningRate: 0.8,
-                numberOfPositivePoints: 300,
-                numberOfNegativePoints: 300
                 );           
 
-            var experimentParameters2 = new ExperimentParameters(2, 10,
-                typeOfMutation: ExperimentParameters.MutationType.Correlated,
-                stepThreshold: 0.1, numberOfGenerations: 10,
-                basePopulationSize: 15,
-                //basePopulationSize: 3,
-                offspringPopulationSize: 100,
-                //offspringPopulationSize: 20,
-                globalLerningRate: 1 / Math.Sqrt(2 * 2),
-                //globalLerningRate: 0.7,
-                individualLearningRate: 1 / Math.Sqrt(2 * Math.Sqrt(2)),
-                numberOfPositivePoints: 100,
-                numberOfNegativePoints: 100
-                );
+            if (databaseContext.Exists(experimentParameters)) return;
 
-            //var visualization = new Visualization();
-
-            var constraints = new List<Constraint>
+            if (experimentParameters.TypeOfBenchmark == ExperimentParameters.BenchmarkType.Other)
             {
-                new Linear2DConstraint(1, 60, Linear2DConstraint.InequalityValue.UnderLine),
-                new Linear2DConstraint(1, 0, Linear2DConstraint.InequalityValue.OverLine),
-                new Linear2DConstraint(-2, 60, Linear2DConstraint.InequalityValue.UnderLine),
-                new Linear2DConstraint(-2, 0, Linear2DConstraint.InequalityValue.OverLine)
-            };
+                experimentParameters.ConstraintsToPointsGeneration = ReferenceModelsExamples.Example1;
+            }
 
-            var constraints2 = new List<Constraint>
-            {
-                //new LinearConstraint(new []{1.0, 0}, 10.0),
-                //new LinearConstraint(new []{0, -1.0}, 10.0),
-                new LinearConstraint(new []{-1.0, 1.0}, 20.0),
-                new LinearConstraint(new []{1.0, -1.0}, 20.0),
-
-                new LinearConstraint(new []{-1.0, -1.0}, 20.0),
-                new LinearConstraint(new []{1.0, 1.0}, 20.0)
-            };
-
-            var constraints3 = new List<Constraint>
-            {
-                new LinearConstraint(new []{1.0, 0}, 20),
-                new LinearConstraint(new []{-1.0, 0}, 20),
-                new LinearConstraint(new []{0, 1.0}, 20),
-                new LinearConstraint(new []{0, -1.0}, 20)
-            };
-
-            experimentParameters.ConstraintsToPointsGeneration = constraints;
+            var version = new Version(DateTime.Now, experimentParameters.GetHashString());
+            var stoper = new Stopwatch();
+            var distanceCalculator = new CanberraDistanceCalculator();
 
             var engine = EngineFactory.GetEngine(experimentParameters);
 
-            var distanceCalculator = new CanberraDistanceCalculator();
-
+            stoper.Restart();
+           
             var positivePointsGenerator = new PositivePointsGenerator();
             var positiveTrainingPoints = positivePointsGenerator.GeneratePoints(experimentParameters.NumberOfPositivePoints, engine.Benchmark);
+
+            stoper.Stop();
+            engine.Statistics.PositiveTrainingPointsGenerationTime = stoper.Elapsed;
+            stoper.Restart();
 
             var negativePointsGenerator = new NegativePointsGenerator(positiveTrainingPoints, distanceCalculator, new NearestNeighbourDistanceCalculator(distanceCalculator));
             var negativeTrainingPoints = negativePointsGenerator.GeneratePoints(experimentParameters.NumberOfNegativePoints, engine.Benchmark);
 
+            stoper.Stop();
+            engine.Statistics.NegativeTrainingPointsGenerationTime = stoper.Elapsed;
+         
             var trainingPoints = positiveTrainingPoints.Concat(negativeTrainingPoints).ToArray();
 
-            //try
-            //{
-            //    engine.SynthesizeModel(trainingPoints);
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.WriteLine(e);
-            //    throw;
-            //}
-            engine.SynthesizeModel(trainingPoints);
+            var mathModel = engine.SynthesizeModel(trainingPoints);
 
-            //var bestSolutionConstraints = engine.BasePopulation.First().GetConstraints(experimentParameters);
-            var synthesizedModel = engine.GetSynthesizedModel();
-
-            //var evaluator = (Evaluator)engine.Evaluator;
-
-            //var remover = new RedundantConstraintsRemover(new DomainSpaceSampler(), engine.Benchmark, experimentParameters);
-            
-            var testConstraints = new[]
-            {
-                new Linear2DConstraint(1, 20, Linear2DConstraint.InequalityValue.UnderLine),
-                new Linear2DConstraint(1, -20, Linear2DConstraint.InequalityValue.OverLine),
-                new Linear2DConstraint(-1, 20, Linear2DConstraint.InequalityValue.UnderLine),
-                new Linear2DConstraint(-1, -20, Linear2DConstraint.InequalityValue.OverLine),
-                new Linear2DConstraint(1, 80, Linear2DConstraint.InequalityValue.UnderLine),
-                new Linear2DConstraint(1, 70, Linear2DConstraint.InequalityValue.UnderLine),
-            };
-
-            //var postConstraints = remover.ApplyProcessing(bestSolutionConstraints);
-            //var postConstraints = remover.ApplyProcessing(bestSolutionConstraints.ToArray());
-
-            //if (experimentParameters.NumberOfDimensions == 2)
-            //{
-            //    visualization.ShowTwoPlots(positiveTrainingPoints, negativeTrainingPoints, engine.Benchmark, synthesizedModel);
-            //}         
-
-            //    .AddNextPlot()
-            //    .AddPoints(evaluator.PositivePoints, OxyColors.Green)
-            //    .AddPoints(evaluator.NegativePoints, OxyColors.Red)
-            //    .AddConstraints(engine.Benchmark.Constraints, OxyPalettes.Rainbow, xMin: engine.Benchmark.Domains[0].LowerLimit, xMax: engine.Benchmark.Domains[0].UpperLimit)
-            //    .AddNextPlot()
-            //    .AddPoints(evaluator.PositivePoints, OxyColors.Green)
-            //    .AddPoints(evaluator.NegativePoints, OxyColors.Red)
-            //    .AddConstraints(bestSolutionConstraints, OxyPalettes.Rainbow)
-            //    //.AddNextPlot()
-            //    //.AddPoints(remover.Points, OxyColors.Orange)
-            //    //.AddConstraints(testConstraints, OxyPalettes.Rainbow)
-            //    .AddNextPlot()
-            //    //.AddPoints(remover.Points, OxyColors.Orange)
-            //    .AddPoints(evaluator.PositivePoints, OxyColors.Green)
-            //    .AddPoints(evaluator.NegativePoints, OxyColors.Red)
-            //    .AddConstraints(postConstraints, OxyPalettes.Rainbow, xMin: engine.Benchmark.Domains[0].LowerLimit, xMax: engine.Benchmark.Domains[0].UpperLimit)
-            //    //.AddNextPlot()
-            //    //.AddPoints(evaluator.PositivePoints, OxyColors.Green)
-            //    //.AddPoints(evaluator.NegativePoints, OxyColors.Red)
-            //    //.AddConstraints(engine.InitialPopulation.First().GetConstraints(experimentParameters), OxyPalettes.Rainbow)
-            //    .Show();
+            stoper.Restart();
 
             var positiveTestPoints = positivePointsGenerator.GeneratePoints(experimentParameters.NumberOfPositivePoints, engine.Benchmark);
 
@@ -209,35 +86,49 @@ namespace ES.ExperimentsApp
 
             var testPoints = positiveTestPoints.Concat(negativeTestPoints).ToArray();
 
+            stoper.Stop();
+            engine.Statistics.TestPointsGenerationTime = stoper.Elapsed;
+
             var statistics = engine.EvaluateModel(testPoints);
 
-            stoper.Stop();
-            Console.WriteLine("Done!");
-            Console.WriteLine("=== Time ===");
-            Console.WriteLine("SEC = " + stoper.Elapsed.TotalSeconds);
-            Console.WriteLine("MIN = " + stoper.Elapsed.TotalMinutes);
-            Console.WriteLine("MIN = " + stoper.Elapsed.Minutes);
-
-            Console.WriteLine("\n");
-            Console.WriteLine("TP = " + statistics.TruePositives);
-            Console.WriteLine("TN = " + statistics.TrueNegatives);
-            Console.WriteLine("FP = " + statistics.FalsePositives);
-            Console.WriteLine("FN = " + statistics.FalseNegatives);
-
-            Console.WriteLine("Recall = " + statistics.Recall);
-            Console.WriteLine("Precision = " + statistics.Precision);
-            Console.WriteLine("Accuracy = " + statistics.Accuracy);
-
-            Console.WriteLine("F1 = " + statistics.F1Score);
-
-            databaseContext.Initialize();
+            databaseContext.Insert(version);
             databaseContext.Insert(experimentParameters);
             databaseContext.Insert(statistics);
-            databaseContext.Insert(synthesizedModel, engine.Benchmark);
+            databaseContext.Insert(mathModel);
             databaseContext.Save();
-            databaseContext.Dispose();
+            databaseContext.Dispose(); 
+            
+            TryGetVisibleResults(engine, positiveTrainingPoints, negativeTrainingPoints);                
+        }
+
+        private static void TryGetVisibleResults(IEngine engine, IList<Point> positiveTrainingPoints, IList<Point> negativeTrainingPoints)
+        {
+            if (Arguments.HasAnyKeys()) return;
+
+            Console.WriteLine("#############################################");
+            Console.WriteLine("################## FINISHED #################");
+            Console.WriteLine("#############################################");
+            Console.Write(engine.Statistics.ToReadableString());
+
+            if (engine.ExperimentParameters.NumberOfDimensions == 2)
+            {
+                new Visualization().ShowTwoPlots(positiveTrainingPoints, negativeTrainingPoints, engine.MathModel);
+            }
 
             Console.ReadKey();
-        }     
+        }
+
+        //private static string GetDbPath(string fileName)
+        //{
+        //    if (Environment.OSVersion.Platform == PlatformID.Unix) return fileName;
+
+        //    var driveToStore = DriveInfo.GetDrives().Any(x => x.Name.Contains("F"))
+        //        ? DriveInfo.GetDrives().First(d => d.Name.Contains("F")).Name
+        //        : DriveInfo.GetDrives().First(d => d.Name.Contains("C")).Name;
+
+        //    var pathToOneDrive = Directory.GetDirectories(driveToStore, "OneDrive?", SearchOption.AllDirectories).FirstOrDefault();
+
+        //    return Path.GetFullPath(pathToOneDrive + "\\MGR Database\\" + fileName);
+        //}
     }
 }

@@ -156,17 +156,17 @@ namespace ES.Engine.Utils
             return this;
         }
 
-        public void ShowTwoPlots(Point[] positivePoints, Point[] negativePoints, IBenchmark benchmark, IList<Constraint> synthesizedModel)
+        public void ShowTwoPlots(IList<Point> positivePoints, IList<Point> negativePoints, MathModel mathModel)
         {
             this
                 .AddNextPlot()
                 .AddPoints(positivePoints, OxyColors.Green)
                 .AddPoints(negativePoints, OxyColors.Red)
-                .AddConstraints(benchmark.Constraints, OxyPalettes.Rainbow, xMin: benchmark.Domains[0].LowerLimit, xMax: benchmark.Domains[0].UpperLimit)
+                .AddConstraints(mathModel.ReferenceModel, OxyPalettes.Rainbow, xMin: mathModel.Domains[0].LowerLimit, xMax: mathModel.Domains[0].UpperLimit)
                 .AddNextPlot()
                 .AddPoints(positivePoints, OxyColors.Green)
                 .AddPoints(negativePoints, OxyColors.Red)
-                .AddConstraints(synthesizedModel, OxyPalettes.Rainbow)
+                .AddConstraints(mathModel.SynthesizedModel, OxyPalettes.Rainbow)
                 .Show();
         }
     }

@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using ES.Engine.Constraints;
 using ES.Engine.Models;
@@ -40,6 +44,24 @@ namespace ES.Engine.Utils
             }
 
             return true;
+        }
+
+        public static string GetHashString(this ExperimentParameters experimentParameters)
+        {
+            var hashStringBuilder = new StringBuilder();
+            var propertyInfos = experimentParameters.GetDbSerializableProperties().OrderBy(pi => pi.Name);
+            
+            foreach (var propertyInfo in propertyInfos)
+            {
+                hashStringBuilder.Append(propertyInfo.GetValue(experimentParameters, null));
+            }
+
+            return hashStringBuilder.ToString();
+        }
+
+        public static IEnumerable<PropertyInfo> GetDbSerializableProperties<T>(this T obj)
+        {
+            return obj.GetType().GetProperties().Where(pi => DatabaseContext.SerializableTypes.Contains(pi.PropertyType.BaseType));
         }
 
         public static string ToLpFormat(this IList<Constraint> constraints, IList<Domain> domains)
@@ -92,6 +114,33 @@ namespace ES.Engine.Utils
             var sb = new StringBuilder();
 
 
+
+            return sb.ToString();
+        }
+
+        public static string ToReadableString(this Statistics statistics)
+        {
+            var sb = new StringBuilder();
+            var propertyInfos = statistics.GetDbSerializableProperties();
+
+            foreach (var propertyInfo in propertyInfos)
+            {
+                sb.Append(propertyInfo.Name);
+                sb.Append(" = ");
+                
+                if (propertyInfo.PropertyType == typeof(TimeSpan))
+                {
+                    var timeSpan = (TimeSpan) propertyInfo.GetValue(statistics, null);
+                    sb.Append(timeSpan.TotalMilliseconds);
+                    sb.Append(" [ms]");
+                }
+                else
+                {
+                    sb.Append(propertyInfo.GetValue(statistics, null));
+                }
+
+                sb.Append("\n");
+            }
 
             return sb.ToString();
         }

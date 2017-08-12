@@ -1,6 +1,6 @@
 ﻿namespace ES.Engine.Models
 {
-    public enum ClassificationType
+    public enum ClassificationType : sbyte
     {
         Negative = -1,
         Positive = 1

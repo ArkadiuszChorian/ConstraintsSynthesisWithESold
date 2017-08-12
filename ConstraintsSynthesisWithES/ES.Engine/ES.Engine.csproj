@@ -86,7 +86,9 @@
     <Compile Include="DistanceMeasuring\NearestNeighbourDistanceCalculator.cs" />
     <Compile Include="Engine\EngineBase.cs" />
     <Compile Include="Models\ClassificationType.cs" />
+    <Compile Include="Models\MathModel.cs" />
     <Compile Include="Models\Statistics.cs" />
+    <Compile Include="Models\Version.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Benchmarks\BallnBenchmark.cs" />
     <Compile Include="Benchmarks\BenchmarkFactory.cs" />
@@ -155,7 +157,6 @@
     <Compile Include="Evaluation\IEvaluator.cs" />
     <Compile Include="Mutation\IMutator.cs" />
     <Compile Include="Selection\ISurvivorsSelector.cs" />
-    <Compile Include="Utils\DatabaseConfig.cs" />
     <Compile Include="Utils\DatabaseContext.cs" />
     <Compile Include="Utils\DeepCopyByExpressionTrees.cs" />
     <Compile Include="Utils\Defaults.cs" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using ES.Engine.Benchmarks;
 using ES.Engine.Constraints;
@@ -8,12 +9,10 @@ using ES.Engine.Logging;
 using ES.Engine.Models;
 using ES.Engine.Mutation;
 using ES.Engine.MutationSupervison;
-using ES.Engine.PointsGeneration;
 using ES.Engine.PopulationGeneration;
 using ES.Engine.PrePostProcessing;
 using ES.Engine.Selection;
 using ES.Engine.Utils;
-using ExperimentDatabase;
 
 namespace ES.Engine.Engine
 {
@@ -33,6 +32,7 @@ namespace ES.Engine.Engine
         protected Solution[] OffspringPopulation;
         protected Constraint[] SynthesizedModel;
         protected Solution[] InitialPopulation;
+        protected Stopwatch Stoper;
 
         //protected EngineBase(IBenchmark benchmark, IPopulationGenerator populationGenerator, IEvaluator evaluator, ILogger logger, IMutator objectMutator, IMutator stdDeviationsMutator, IMutationRuleSupervisor mutationRuleSupervisor, IParentsSelector parentsParentsSelector, ISurvivorsSelector survivorsSelector, IPointsGenerator positivePointsGenerator, IPointsGenerator negativePointsGenerator, ExperimentParameters experimentParameters, Solution[] basePopulation, Solution[] offspringPopulation)
         //{
@@ -68,28 +68,29 @@ namespace ES.Engine.Engine
             Statistics = statistics;
             BasePopulation = basePopulation;
             OffspringPopulation = offspringPopulation;
+            Stoper = new Stopwatch();
         }
 
-        public ExperimentParameters ExperimentParameters { get; set; }
+        public MathModel MathModel { get; set; }
+        public ExperimentParameters ExperimentParameters { get; set; }       
         public Statistics Statistics { get; set; }
         public IBenchmark Benchmark { get; set; }       
 
-        public IList<Constraint> GetSynthesizedModel()
-        {
-            //return BasePopulation.First().GetConstraints(ExperimentParameters);
-            return SynthesizedModel;
-        }
+        //public IList<Constraint> GetSynthesizedModel()
+        //{
+        //    return SynthesizedModel;
+        //}
 
-        public IList<Constraint> GetReferenceModel()
-        {
-            return Benchmark.Constraints;
-        }
+        //public IList<Constraint> GetReferenceModel()
+        //{
+        //    return Benchmark.Constraints;
+        //}
 
-        public virtual void SynthesizeModel(Point[] trainingPoints)
+        public virtual MathModel SynthesizeModel(Point[] trainingPoints)
         {
             var offspringPopulationSize = ExperimentParameters.OffspringPopulationSize;
-            var numberOfGenerations = ExperimentParameters.NumberOfGenerations;
-
+            var numberOfGenerations = ExperimentParameters.NumberOfGenerations;          
+                
             Evaluator.PositivePoints = trainingPoints.Where(tp => tp.ClassificationType == ClassificationType.Positive).ToArray();
             Evaluator.NegativePoints = trainingPoints.Where(tp => tp.ClassificationType == ClassificationType.Negative).ToArray();
 
@@ -100,18 +101,39 @@ namespace ES.Engine.Engine
 
             InitialPopulation = BasePopulation.DeepCopyByExpressionTree();
 
+            Stoper.Restart();
+
             for (var i = 0; i < numberOfGenerations; i++)
             {
-                Evolve(offspringPopulationSize);              
-            }    
-            
+                Evolve(offspringPopulationSize);                             
+            }
+
+            Stoper.Stop();
+
+            Statistics.TotalEvolutionTime = Stoper.Elapsed;
+            Statistics.MeanSingleGenerationEvolutionTime = TimeSpan.FromTicks(Statistics.TotalEvolutionTime.Ticks / numberOfGenerations);
+
+            Stoper.Restart();
+
             SynthesizedModel = RedundantConstriantsRemover.ApplyProcessing(BasePopulation.First().GetConstraints(ExperimentParameters));
+
+            Stoper.Stop();
+
+            Statistics.RedundantConstraintsRemovingTime = Stoper.Elapsed;
+            Statistics.TotalSynthesisTime = Statistics.TotalEvolutionTime + Stoper.Elapsed;
+
+            Stoper.Reset();
+
+            MathModel = new MathModel(SynthesizedModel, Benchmark);
+            return MathModel;
         }
 
         public virtual Statistics EvaluateModel(Point[] testPoints)
-        {
+        {           
             var numberOfPoints = testPoints.Length;
-            var constraints = GetSynthesizedModel();
+            var constraints = MathModel.SynthesizedModel;
+
+            Stoper.Restart();
 
             for (var i = 0; i < numberOfPoints; i++)
             {
@@ -144,6 +166,10 @@ namespace ES.Engine.Engine
                     }
                 }
             }
+
+            Stoper.Stop();
+            Statistics.ModelEvaluationTime = Stoper.Elapsed;
+            Stoper.Reset();
 
             return Statistics;
         }
